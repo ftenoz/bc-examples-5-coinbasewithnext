@@ -8,6 +8,9 @@ import {Router} from '../../routes';
 class CampaignNew extends Component{
     state = {
         minimumContribution:'',
+        title:'',
+        desc:'',
+        targetValue:'',
         errorMesage:'',
         loading:false
     };
@@ -20,7 +23,7 @@ class CampaignNew extends Component{
             const accounts = await web3.eth.getAccounts();
 
             await factory.methods
-                .createCampaign(this.state.minimumContribution)
+                .createCampaign(this.state.minimumContribution, this.state.title, this.state.desc, web3.utils.toWei(this.state.targetValue, 'ether'))
                 .send({
                     from:accounts[0]
                 });
@@ -40,6 +43,31 @@ class CampaignNew extends Component{
                 <h3>Create a campaign</h3>
                 {/* !!this.state.errormesage'i string'den bool'a çeviriyor. */}
                 <Form onSubmit={this.onSubmit} error={!!this.state.errorMesage}>
+                    <Form.Field>
+                            <label>Title</label>
+                            <Input 
+                                value = {this.state.title}
+                                onChange = {event => this.setState({title:event.target.value })}
+                            />
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Description</label>
+                            <Input 
+                                value = {this.state.desc}
+                                onChange = {event => this.setState({desc:event.target.value })}
+                            />
+                        </Form.Field>
+                        <Form.Field>
+                        <label>Campaign Target</label>
+                        <Input 
+                            label="ether" 
+                            labelPosition="right"
+                            value = {this.state.targetValue}
+                            onChange = {event => this.setState({targetValue:event.target.value })}
+                        />
+                    </Form.Field>
+
+
                     <Form.Field>
                         <label>Minimum Contribution</label>
                         <Input 

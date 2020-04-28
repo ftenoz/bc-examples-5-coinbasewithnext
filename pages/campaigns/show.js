@@ -51,7 +51,7 @@ class CampaignShow extends Component{
             {
             header:approversCount,
             meta:'Number of Approvers',
-            description:'Number of people who donated to this contract',
+            description:'Number of accounts who donated to this contract',
             },
             {
             header:web3.utils.fromWei(balance,'ether'),
