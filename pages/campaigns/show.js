@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Layout from '../../Components/Layout';
 import Campaign from '../../ethereum/campaign';
 import { Card, Grid, Button } from 'semantic-ui-react';
-import web3 from '../../ethereum/web3'
+import web3 from '../../ethereum/web3';
 import ContributeForm from '../../Components/ContributeForm';
 import {Link} from '../../routes'
 
@@ -10,6 +10,7 @@ class CampaignShow extends Component{
     static async getInitialProps(props){
         const campaign = Campaign(props.query.address);
         const summary = await campaign.methods.getSummary().call();
+        const totalDonation = await campaign.methods.totalDonation().call();
         
         return{
             address:props.query.address,
@@ -17,7 +18,8 @@ class CampaignShow extends Component{
             balance: summary[1],
             requestsCount:summary[2],
             approversCount:summary[3],
-            manager:summary[4]
+            manager:summary[4],
+            totalDonation: totalDonation
         };
     }
 
@@ -28,7 +30,8 @@ class CampaignShow extends Component{
             manager,
             minimumContribution,
             requestsCount,
-            approversCount
+            approversCount,
+            totalDonation
         } = this.props;
 
         const items = [
@@ -57,6 +60,11 @@ class CampaignShow extends Component{
             header:web3.utils.fromWei(balance,'ether'),
             meta:'Campaign Balance(ether)',
             description:'The balance is how much money this campaign has left to spend',
+            },
+            {
+                header:web3.utils.fromWei(totalDonation,'ether'),
+                meta:'Total Donation(ether)',
+                description:'How much has been donated to the campaign',
             }
         ];
 

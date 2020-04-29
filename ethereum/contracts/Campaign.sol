@@ -24,7 +24,8 @@ contract Campaign{
         bool  complete;
         mapping(address=>bool) approvals;
         uint approvalCount;
-    
+        uint approvingDonationTotal;
+
     }
     
     address public manager;
@@ -33,8 +34,12 @@ contract Campaign{
     string public campaignDescription;
     uint public campaignTarget;
     mapping(address=>bool) public approvers;
+    mapping(address=>uint) public howMuchDonated;
     Request[] public requests;
     uint public approversCount;
+    uint public totalDonation;
+   
+    
     
     modifier restricted{
         require(msg.sender == manager);
@@ -53,6 +58,9 @@ contract Campaign{
         require(msg.value>minimumContribution, 'not enough fund supplied');
         approvers[msg.sender] = true;
         approversCount++;
+        totalDonation += msg.value;
+        howMuchDonated[msg.sender] += msg.value;
+        
     }
     
     function createRequest(string description, uint value, address recepient) public restricted{
@@ -61,7 +69,8 @@ contract Campaign{
             value:value,
             recepient:recepient,
             complete:false,
-            approvalCount : 0
+            approvalCount : 0,
+            approvingDonationTotal:0
         });
         
         requests.push(newRequest);
@@ -74,6 +83,7 @@ contract Campaign{
         require(!request.approvals[msg.sender],'You already voted');
         request.approvals[msg.sender] = true;
         request.approvalCount++;
+        request.approvingDonationTotal += howMuchDonated[msg.sender];
         
         
     }
@@ -81,7 +91,8 @@ contract Campaign{
     function finalizeRequest(uint index) public restricted{
         Request storage request = requests[index];
         require(!request.complete);
-        require(request.approvalCount >(approversCount/2));
+        //require(request.approvalCount >(approversCount/2));
+        require((totalDonation / request.approvingDonationTotal) < 2);
         request.recepient.transfer(request.value);
         request.complete = true;
     }
@@ -95,8 +106,8 @@ contract Campaign{
             manager
         );
     }
-
-    function homePage() public view returns (string, string, uint, uint, address){
+    
+     function homePage() public view returns (string, string, uint, uint, address){
         return(
             campaignTitle,
             campaignDescription,
